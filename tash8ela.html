@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إدارة تشغيلات - مسار طيبة 4M</title>
+    <style>
+        body {
+            font-family: 'Tahoma', Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        h2 {
+            text-align: center;
+            color: #1b4d3e;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #444;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus, select:focus {
+            border-color: #1b4d3e;
+            outline: none;
+        }
+        /* تصميم أزرار الاختيار السريع للنوع */
+        .type-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .type-btn {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #1b4d3e;
+            background: #fff;
+            color: #1b4d3e;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        .type-btn.active {
+            background: #1b4d3e;
+            color: #fff;
+        }
+        .passengers-container {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px dashed #ccc;
+            margin-top: 10px;
+        }
+        .passenger-input {
+            margin-bottom: 10px;
+        }
+        button[type="submit"] {
+            background-color: #1b4d3e;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+        }
+        button[type="submit"]:hover {
+            background-color: #14382c;
+        }
+        .output-box {
+            margin-top: 25px;
+            background: #eef2f3;
+            padding: 15px;
+            border-radius: 6px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            direction: rtl;
+            text-align: right;
+            border: 1px solid #cbd5e1;
+        }
+        .copy-btn {
+            background-color: #0284c7;
+            color: white;
+            border: none;
+            padding: 12px;
+            width: 100%;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .copy-btn:hover {
+            background-color: #0369a1;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>مسار طيبة 4M - إنشاء تشغيلة</h2>
+    
+    <form id="tripForm" onsubmit="generateTrip(event)">
+        
+        <!-- زرار اختيار نوع التشغيلة (استقبال / مغادرة / رحلة) -->
+        <div class="form-group">
+            <label>نوع الخدمة:</label>
+            <div class="type-selector">
+                <div class="type-btn active" onclick="setServiceType(this, 'استقبال')">استقبال</div>
+                <div class="type-btn" onclick="setServiceType(this, 'مغادرة')">مغادرة</div>
+                <div class="type-btn" onclick="setServiceType(this, 'رحلة')">رحلة</div>
+            </div>
+            <input type="hidden" id="serviceType" value="استقبال">
+        </div>
+
+        <div class="form-group">
+            <label>نوع السيارة:</label>
+            <select id="carType" required>
+                <option value="ستاريا">ستاريا (Hyundai Staria)</option>
+                <option value="H-1">H-1 (Hyundai H-1)</option>
+                <option value="توصيل عادي">توصيل عادي</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>رقم الحجز:</label>
+            <input type="text" id="bookingNo" required placeholder="مثال: 1671">
+        </div>
+
+        <div class="form-group">
+            <label>اسم العميل:</label>
+            <input type="text" id="clientName" required placeholder="مثال: سند ابراهيم">
+        </div>
+
+        <div class="form-group">
+            <label>الجنسيه:</label>
+            <input type="text" id="nationality" required placeholder="مثال: الامارات">
+        </div>
+
+        <div class="form-group">
+            <label>رقم جوال العميل:</label>
+            <input type="text" id="clientPhone" required placeholder="مثال: +971508223287">
+        </div>
+
+        <div class="form-group">
+            <label>مكان الوصول:</label>
+            <input type="text" id="terminal" required placeholder="مثال: صالة 1 / المروه ريحانا">
+        </div>
+
+        <div class="form-group">
+            <label>رقم الرحلة:</label>
+            <input type="text" id="flightNo" required placeholder="مثال: ey603">
+        </div>
+
+        <div class="form-group">
+            <label>تاريخ الوصول:</label>
+            <input type="text" id="flightDate" required placeholder="مثال: 1 أكتوبر">
+        </div>
+
+        <div class="form-group">
+            <label>ساعة الوصول:</label>
+            <input type="text" id="flightTime" required placeholder="مثال: ٣:٥٥ فجرا">
+        </div>
+
+        <div class="form-group">
+            <label>اسم فندق الوصول:</label>
+            <input type="text" id="hotelName" required placeholder="مثال: المروه ريحانا">
+        </div>
+
+        <div class="form-group">
+            <label>عدد المرافقين:</label>
+            <input type="number" id="passengersCount" min="0" value="0" oninput="updatePassengerFields()">
+        </div>
+
+        <div id="passengersListContainer"></div>
+
+        <div class="form-group" style="margin-top: 15px;">
+            <label>اسم الكابتن:</label>
+            <input type="text" id="captainName" required placeholder="مثال: علاء نايل">
+        </div>
+
+        <div class="form-group">
+            <label>رقم جوال الكابتن:</label>
+            <input type="text" id="captainPhone" required placeholder="مثال: +966508692867">
+        </div>
+
+        <div class="form-group">
+            <label>المبلغ المتفق عليه (ريال):</label>
+            <input type="number" id="amount" required placeholder="مثال: 200">
+        </div>
+
+        <button type="submit">إصدار ونسخ تفاصيل الحجز</button>
+    </form>
+
+    <div id="resultSection" style="display:none;">
+        <div class="output-box" id="outputResult"></div>
+        <button type="button" class="copy-btn" onclick="copyResult()">نسخ النص لإرساله</button>
+    </div>
+</div>
+
+<script>
+function setServiceType(element, type) {
+    const buttons = document.querySelectorAll('.type-btn');
+    buttons.forEach(btn => btn.classList.remove('active'));
+    element.classList.add('active');
+    document.getElementById('serviceType').value = type;
+}
+
+function updatePassengerFields() {
+    const count = parseInt(document.getElementById('passengersCount').value) || 0;
+    const container = document.getElementById('passengersListContainer');
+    container.innerHTML = '';
+    
+    if (count > 0) {
+        let html = '<div class="passengers-container"><label>أسماء المرافقين:</label>';
+        for (let i = 1; i <= count; i++) {
+            html += `<div class="passenger-input"><input type="text" class="p-name" placeholder="اسم المرافق رقم ${i}" required></div>`;
+        }
+        html += '</div>';
+        container.innerHTML = html;
+    }
+}
+
+function generateTrip(e) {
+    e.preventDefault();
+    
+    const serviceType = document.getElementById('serviceType').value;
+    const carType = document.getElementById('carType').value;
+    const bookingNo = document.getElementById('bookingNo').value;
+    const clientName = document.getElementById('clientName').value;
+    const nationality = document.getElementById('nationality').value;
+    const clientPhone = document.getElementById('clientPhone').value;
+    const terminal = document.getElementById('terminal').value;
+    const flightNo = document.getElementById('flightNo').value;
+    const flightDate = document.getElementById('flightDate').value;
+    const flightTime = document.getElementById('flightTime').value;
+    const hotelName = document.getElementById('hotelName').value;
+    const captainName = document.getElementById('captainName').value;
+    const captainPhone = document.getElementById('captainPhone').value;
+    const amount = document.getElementById('amount').value;
+
+    let passengersText = "";
+    const pInputs = document.querySelectorAll('.p-name');
+    if (pInputs.length > 0) {
+        passengersText = "اسماء المرافقين\n";
+        pInputs.forEach(input => {
+            if(input.value.trim() !== "") {
+                passengersText += input.value.trim() + "\n";
+            }
+        });
+    }
+
+    let finalResult = `شكرا لحجزكم معنا طيبه للتوصيل للتوصيل تم تأكيد حجزكم\n`;
+    finalResult += ` واليكم بيانات الحجز\t \n\t `;
+    finalResult += `${serviceType} ${carType}\n`;
+    finalResult += `رقم الحجز ${bookingNo}\n`;
+    finalResult += `اسم العميل  ${clientName}\n`;
+    finalResult += `الجنسيه  ${nationality}\n`;
+    finalResult += `رقم الجوال ${clientPhone}\n`;
+    finalResult += `مكان الوصول ${terminal}\n`;
+    finalResult += `رقم الرحلة ${flightNo}\n`;
+    finalResult += `تاريخ الوصول  ${flightDate}\n`;
+    finalResult += `ساعة الوصول ${flightTime}\n`;
+    finalResult += `اسم فندق الوصول ${hotelName}\n`;
+    if(passengersText) {
+        finalResult += `${passengersText}`;
+    }
+    finalResult += `اسم الكابتن ${captainName}\n`;
+    finalResult += `رقم الجوال  ${captainPhone}\n`;
+    finalResult += ` المبلغ المتفق عليه ${amount}\n`;
+    finalResult += `الدفع كاش\n\n`;
+    finalResult += `    وتقبل الله منكم صالح الاعمال`;
+
+    document.getElementById('outputResult').innerText = finalResult;
+    document.getElementById('resultSection').style.display = 'block';
+    document.getElementById('outputResult').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyResult() {
+    const text = document.getElementById('outputResult').innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        alert('تم نسخ تفاصيل الحجز بنجاح!');
+    });
+}
+</script>
+
+</body>
+</html>
